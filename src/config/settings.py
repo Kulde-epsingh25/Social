@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # ── News / Media ──────────────────────────────────────────────────────────
     news_api_key: str = Field(default="", alias="NEWS_API_KEY")
     news_api_url: str = Field(
-        default="https://eventregistry.org/api/v1", alias="NEWS_API_URL"
+        default="https://newsdata.io/api/1", alias="NEWS_API_URL"
     )
 
     # ── OpenAI ────────────────────────────────────────────────────────────────

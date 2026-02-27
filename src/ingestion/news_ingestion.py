@@ -1,4 +1,4 @@
-"""News ingestion via NewsAPI.ai (EventRegistry) with salience scoring."""
+"""News ingestion via newsdata.io with salience scoring."""
 
 from __future__ import annotations
 
@@ -48,7 +48,7 @@ class NewsEvent:
 
 
 class NewsIngestionAgent:
-    """Fetches and prioritises news events from NewsAPI.ai / EventRegistry."""
+    """Fetches and prioritises news events from newsdata.io."""
 
     _BASE_URL: str = settings.news_api_url
 
@@ -70,24 +70,22 @@ class NewsIngestionAgent:
             logger.warning("NEWS_API_KEY not set – returning mock events.")
             return self._mock_events(query, max_results)
 
-        payload = {
-            "action": "getArticles",
-            "keyword": query,
-            "articlesCount": max_results,
-            "articlesSortBy": "date",
-            "resultType": "articles",
-            "apiKey": self._api_key,
+        params = {
+            "apikey": self._api_key,
+            "q": query,
+            "size": min(max_results, 10),  # newsdata.io free tier max is 10
+            "language": "en",
         }
         try:
-            resp = requests.post(
-                f"{self._BASE_URL}/article/getArticles",
-                json=payload,
+            resp = requests.get(
+                f"{self._BASE_URL}/news",
+                params=params,
                 timeout=15,
             )
             resp.raise_for_status()
             return self._parse_response(resp.json())
         except requests.RequestException as exc:
-            logger.error("NewsAPI request failed: %s", exc)
+            logger.error("newsdata.io request failed: %s", exc)
             return []
 
     def calculate_salience_score(self, event: NewsEvent) -> float:
@@ -117,24 +115,21 @@ class NewsIngestionAgent:
     # ------------------------------------------------------------------
 
     def _parse_response(self, data: dict[str, Any]) -> list[NewsEvent]:
-        articles = (
-            data.get("articles", {}).get("results", [])
-        )
+        # newsdata.io returns {"status": "success", "results": [...]}
+        articles = data.get("results", [])
         events: list[NewsEvent] = []
         for art in articles:
-            eid = hashlib.md5(art.get("url", art.get("uri", "")).encode()).hexdigest()
+            url = art.get("link", art.get("article_id", ""))
+            eid = hashlib.md5(url.encode()).hexdigest()
+            content = art.get("content") or art.get("description") or ""
             events.append(
                 NewsEvent(
                     id=eid,
                     title=art.get("title", ""),
-                    content=art.get("body", ""),
-                    source=art.get("source", {}).get("title", "unknown"),
-                    published_at=art.get("dateTime", ""),
-                    entities=[
-                        c.get("label", {}).get("eng", "")
-                        for c in art.get("concepts", [])
-                    ],
-                    sentiment=art.get("sentiment", 0.0) or 0.0,
+                    content=content,
+                    source=art.get("source_id", "unknown"),
+                    published_at=art.get("pubDate", ""),
+                    entities=[k for k in (art.get("keywords") or []) if isinstance(k, str)],
                 )
             )
         return events

@@ -49,28 +49,27 @@ class TestNewsIngestionAgent:
         # Should be empty or contain only high-priority items
         assert isinstance(result, list)
 
-    @patch("src.ingestion.news_ingestion.requests.post")
-    def test_fetch_events_parses_api_response(self, mock_post):
-        mock_post.return_value = MagicMock(
+    @patch("src.ingestion.news_ingestion.requests.get")
+    def test_fetch_events_parses_api_response(self, mock_get):
+        mock_get.return_value = MagicMock(
             status_code=200,
             json=lambda: {
-                "articles": {
-                    "results": [
-                        {
-                            "uri": "test-uri",
-                            "url": "http://example.com/article",
-                            "title": "Test Article",
-                            "body": "Test content",
-                            "source": {"title": "Test Source"},
-                            "dateTime": "2024-01-01T00:00:00Z",
-                            "concepts": [],
-                            "sentiment": -0.5,
-                        }
-                    ]
-                }
+                "status": "success",
+                "results": [
+                    {
+                        "article_id": "test-id",
+                        "link": "http://example.com/article",
+                        "title": "Test Article",
+                        "description": "Test content",
+                        "content": "Test content full",
+                        "source_id": "Test Source",
+                        "pubDate": "2024-01-01 00:00:00",
+                        "keywords": [],
+                    }
+                ],
             },
         )
-        mock_post.return_value.raise_for_status = lambda: None
+        mock_get.return_value.raise_for_status = lambda: None
         agent = NewsIngestionAgent()
         agent._api_key = "fake-key"
         events = agent.fetch_events("test")
