@@ -93,12 +93,19 @@ class PostWriterAgent:
 
     @staticmethod
     def _build_agent():  # noqa: ANN
-        from crewai import Agent  # noqa: PLC0415
+        from crewai import Agent, LLM  # noqa: PLC0415
+        from src.config.settings import settings  # noqa: PLC0415
+
+        if not settings.openai_api_key:
+            logger.warning("OPENAI_API_KEY not set – PostWriterAgent running in mock mode.")
+            return None
         try:
+            llm = LLM(model=settings.openai_model, api_key=settings.openai_api_key)
             return Agent(
                 role="Political Commentator",
                 goal=_GOAL,
                 backstory=_BACKSTORY,
+                llm=llm,
                 verbose=False,
                 allow_delegation=False,
             )
