@@ -51,16 +51,18 @@ class MetricsCollector:
             except (json.JSONDecodeError, TypeError):
                 continue
         return counts
+
+    def get_summary(self) -> dict[str, Any]:
         """Return aggregate counts for the dashboard."""
         with sqlite3.connect(self._db) as conn:
             rows = conn.execute(
                 "SELECT event_type, COUNT(*) FROM metrics GROUP BY event_type"
             ).fetchall()
-        counts = {r[0]: r[1] for r in rows}
+        event_counts = {r[0]: r[1] for r in rows}
         return {
-            "events_processed": counts.get("event_processed", 0),
-            "posts_published": counts.get("post_published", 0),
-            "compliance_checks": counts.get("compliance_check", 0),
+            "events_processed": event_counts.get("event_processed", 0),
+            "posts_published": event_counts.get("post_published", 0),
+            "compliance_checks": event_counts.get("compliance_check", 0),
             "generated_at": datetime.now(tz=timezone.utc).isoformat(),
         }
 
