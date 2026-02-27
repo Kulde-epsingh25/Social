@@ -87,17 +87,14 @@ def main() -> None:
 
     # ── Philosophical framework usage ─────────────────────────────────
     st.subheader("📚 Philosophical Framework Usage")
-    frameworks = [
-        "Kantian (Deontology)",
-        "Utilitarian (Mill/Bentham)",
-        "Lockean (Liberty)",
-        "Rawlsian (Justice)",
-        "Virtue Ethics",
-        "Machiavellian",
-    ]
-    # Placeholder data – replace with live metric queries.
-    import random
-    usage = {f: random.randint(1, 20) for f in frameworks}  # noqa: S311
+    usage = metrics.get_framework_usage()
+    if not usage:
+        # Show labelled zero-baseline when no data yet recorded
+        usage = {
+            "justice": 0, "deontology": 0,
+            "utilitarianism": 0, "virtue": 0, "liberty": 0,
+        }
+        st.caption("No events processed yet – counts will populate as the pipeline runs.")
     st.bar_chart(usage)
 
     st.divider()

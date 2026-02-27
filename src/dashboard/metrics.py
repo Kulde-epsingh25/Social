@@ -36,7 +36,21 @@ class MetricsCollector:
         """Record the outcome of a compliance check."""
         self._insert("compliance_check", result)
 
-    def get_summary(self) -> dict[str, Any]:
+    def get_framework_usage(self) -> dict[str, int]:
+        """Return counts of philosophical framework usage from recorded events."""
+        with sqlite3.connect(self._db) as conn:
+            rows = conn.execute(
+                "SELECT payload FROM metrics WHERE event_type = 'event_processed'"
+            ).fetchall()
+        counts: dict[str, int] = {}
+        for row in rows:
+            try:
+                payload = json.loads(row[0])
+                for fw in payload.get("philosophy_context", {}).get("frameworks", []):
+                    counts[fw] = counts.get(fw, 0) + 1
+            except (json.JSONDecodeError, TypeError):
+                continue
+        return counts
         """Return aggregate counts for the dashboard."""
         with sqlite3.connect(self._db) as conn:
             rows = conn.execute(
