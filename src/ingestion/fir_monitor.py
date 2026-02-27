@@ -13,7 +13,7 @@ from src.config.settings import settings
 
 logger = logging.getLogger(__name__)
 
-_OGD_BASE = "https://data.gov.in/api/datastore/resource.json"
+_OGD_BASE = "https://api.data.gov.in/resource"
 
 # Mock FIR data for demo mode
 _MOCK_FIRS: list[dict[str, Any]] = [
@@ -73,8 +73,14 @@ class FIRMonitor:
         if crime_type:
             params["filters[crime_type]"] = crime_type
 
+        resource_id = settings.ogd_fir_resource_id
+        if not resource_id:
+            logger.error("OGD_FIR_RESOURCE_ID not configured – cannot fetch FIR data.")
+            return []
         try:
-            resp = requests.get(_OGD_BASE, params=params, timeout=15)
+            resp = requests.get(
+                f"{_OGD_BASE}/{resource_id}", params=params, timeout=15
+            )
             resp.raise_for_status()
             return self._parse(resp.json())
         except requests.RequestException as exc:

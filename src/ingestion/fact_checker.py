@@ -88,10 +88,10 @@ class FactCheckerAgent:
     # ------------------------------------------------------------------
 
     def _verify_via_api(self, claim: str) -> FactCheckResult:
-        """Call Originality.ai scan endpoint."""
+        """Call Originality.ai AI-content detection endpoint."""
         try:
             resp = requests.post(
-                "https://api.originality.ai/api/v1/scan/ai",
+                "https://api.originality.ai/api/v2/ai-content-detect",
                 headers={"X-OAI-API-KEY": self._api_key},
                 json={"content": claim, "title": "Claim verification"},
                 timeout=15,
