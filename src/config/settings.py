@@ -42,15 +42,20 @@ class Settings(BaseSettings):
 
     # ── OGD / FIR ─────────────────────────────────────────────────────────────
     ogd_api_key: str = Field(default="", alias="OGD_API_KEY")
+    # Default resource ID for the National Crime Records Bureau FIR dataset on api.data.gov.in
+    ogd_fir_resource_id: str = Field(
+        default="9ef84268-d588-465a-a308-a864a43d0070",
+        alias="OGD_FIR_RESOURCE_ID",
+    )
 
     # ── Legislative ───────────────────────────────────────────────────────────
     prs_base_url: str = Field(
-        default="https://prsindia.org/api", alias="PRS_BASE_URL"
+        default="https://api.prsindia.org/api", alias="PRS_BASE_URL"
     )
     digital_sansad_url: str = Field(
-        default="https://digitalsansad.sansad.in", alias="DIGITAL_SANSAD_URL"
+        default="https://sansad.in/ls", alias="DIGITAL_SANSAD_URL"
     )
-    adr_base_url: str = Field(default="https://myneta.info", alias="ADR_BASE_URL")
+    adr_base_url: str = Field(default="https://myneta.info/api", alias="ADR_BASE_URL")
 
     # ── Fact-checking ─────────────────────────────────────────────────────────
     originality_api_key: str = Field(default="", alias="ORIGINALITY_API_KEY")

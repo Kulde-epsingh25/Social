@@ -90,6 +90,7 @@ Open `.env` and replace every `your_*_here` placeholder with real credentials:
 | `X_ACCESS_TOKEN_SECRET` | X (Twitter) access token secret |
 | `KAFKA_BOOTSTRAP_SERVERS` | Kafka broker address (default: `localhost:9092`) |
 | `OGD_API_KEY` | OGD Platform India key (for FIR data) |
+| `OGD_FIR_RESOURCE_ID` | Dataset resource ID on api.data.gov.in (default value provided) |
 | `ORIGINALITY_API_KEY` | Originality.ai key for fact-checking |
 | `MAX_POSTS_PER_DAY` | Daily posting limit (default: `10`) |
 | `POST_INTERVAL_MINUTES` | Minimum minutes between posts (default: `60`) |
